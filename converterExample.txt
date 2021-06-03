@@ -1,0 +1,36 @@
+MRN,Name (Given),Name (Family),Gender,Birthdate,Telecom
+335864,James,Johnson,M,1975-12-25,512-123-4567
+
+{
+    "identifier": {
+        "use": "usual",
+        "label": "MRN",
+        "system": "example.medical.system",
+        "value": "335864"
+    },
+    "name": {
+        "use": "official",
+        "family": [
+            "Johnson"
+        ],
+        "given": [
+            "James"
+        ]
+    },
+    "gender": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/v3/AdministrativeGender",
+                "code": "M",
+                "display": "Male"
+            }
+        ]
+    },
+    "birthDate": "1975-12-25",
+    "contact": {
+        "telecom": {
+            "system": "phone",
+            "value": "512-123-4567"
+        }
+    }
+}

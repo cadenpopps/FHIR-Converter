@@ -1,8 +1,9 @@
 
 from FHIRPatient import FHIRPatient
+from FHIRCondition import FHIRCondition
+from FHIRProcedure import FHIRProcedure
+from FHIRMedicationRequest import FHIRMedicationRequest
 import sys
-import json
-import random
 
 SKIP_FIRST_LINE = True
 # SKIP_FIRST_LINE = False
@@ -14,32 +15,25 @@ PRETTY_PRINT = True
 def Main():
 
     if len(sys.argv) < 2:
-        csvFilename = "data/default.csv"
+        csvFilename = "data/six_patients.csv"
     else:
         csvFilename = sys.argv[1]
 
     csvFileContents = getFileContents(csvFilename)
     csvData = parseCSV(csvFileContents)
 
-    patients = []
-
-    for line in csvData:
-        p = FHIRPatient(line[0])
-        p.setName(line[1], line[2])
-        p.setGender(line[3])
-        p.setBirthdate(line[4])
-        p.setPhone(line[5])
-        patients.append(p)
+    resources = convertResourcesToFHIR(csvData)
 
 
-    for line, patient in zip(csvData, patients):
+    for line, resource in zip(csvData, resources):
         print()
         if PRETTY_PRINT:
-            print("Patient: " + line[1] + " " + line[2])
+            print("CSV")
             print(line)
-            print(patient.constructJSON(), end="\n\n")
+            print("FHIR")
+            print(resource, end="\n\n")
         else:
-            print(patient.constructJSON(), end="\n")
+            print(resource, end="\n")
 
     return 0
 
@@ -66,5 +60,43 @@ def parseLine(csvLine):
     csvElements = csvLine.split(",")
     return csvElements
 
+def convertPatientToFHIR(patientData):
+    patient = FHIRPatient(patientData[1])
+    patient.setName(patientData[2], patientData[3])
+    patient.setGender(patientData[4])
+    patient.setBirthdate(patientData[5])
+    patient.setPhone(patientData[6])
+    return patient.constructJSON()
+
+def convertConditionToFHIR(conditionData):
+    condition = FHIRCondition()
+    condition.setCode(conditionData[1], conditionData[2])
+    condition.setClinicalStatus(conditionData[3])
+    condition.setVerificationStatus(conditionData[4])
+    condition.setSubject(conditionData[5])
+    condition.setRecordedDate(conditionData[6])
+    return condition.constructJSON()
+
+def convertProcedureToFHIR(procedureData):
+    procedure = FHIRProcedure()
+    return procedure.constructJSON()
+
+def convertMedicationToFHIR(medicationData):
+    medication = FHIRMedicationRequest()
+    return medication.constructJSON()
+
+def convertResourcesToFHIR(csvData):
+    resources = []
+    for line in csvData:
+        resources.append(convertToFHIR[line[0]](line))
+    return resources
+
+
+convertToFHIR = {
+        "Patient": convertPatientToFHIR,
+        "Condition": convertConditionToFHIR,
+        "Procedure": convertProcedureToFHIR,
+        "Medication": convertMedicationToFHIR
+        }
 
 Main()
